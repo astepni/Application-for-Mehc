@@ -1,0 +1,161 @@
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'haslo';
+
+CREATE DATABASE Zaklad_mechaniczny;
+
+CREATE TABLE Klienci (
+    id_klienta INT AUTO_INCREMENT PRIMARY KEY,
+    imie VARCHAR(50),
+    nazwisko VARCHAR(60),
+    nr_telefonu INT
+);
+
+
+CREATE TABLE Czesci_zamienne (
+    id_czesci INT AUTO_INCREMENT PRIMARY KEY,
+    nazwa_czesci_zamiennej VARCHAR(255),
+    marka_pojazdu VARCHAR(80),
+    ilosc_sztuk INT,cena_netto DOUBLE ,
+    cena_brutto DOUBLE
+);
+
+
+CREATE TABLE zlecenia (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    opis VARCHAR(255),
+    status_naprawy VARCHAR(100),
+    id_klienta INT,
+    data_zlecenia TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE mechanicy (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    imie VARCHAR(100),
+    nazwisko VARCHAR(100)
+);
+
+
+CREATE TABLE zlecenia_mechanicy (
+    zlecenie_id INT,
+    mechanik_id INT,
+    PRIMARY KEY (zlecenie_id, mechanik_id),
+    FOREIGN KEY (zlecenie_id) REFERENCES zlecenia(id),
+    FOREIGN KEY (mechanik_id) REFERENCES mechanicy(id)
+);
+
+
+CREATE TABLE uslugi (
+    id_uslugi INT AUTO_INCREMENT PRIMARY KEY,
+    nazwa_uslugi VARCHAR(255),
+    cena DOUBLE
+);
+
+
+CREATE TABLE wyceny (
+    id_wyceny INT AUTO_INCREMENT PRIMARY KEY,
+    zlecenie_id INT NOT NULL,
+    czesc_id INT,
+    usluga_id INT,
+    cena_czesci DOUBLE DEFAULT 0,
+    cena_uslugi DOUBLE DEFAULT 0,
+    FOREIGN KEY (zlecenie_id) REFERENCES zlecenia(id),
+    FOREIGN KEY (czesc_id) REFERENCES Czesci_zamienne(id_czesci),
+    FOREIGN KEY (usluga_id) REFERENCES uslugi(id_uslugi)
+);
+
+REATE TABLE pojazdy(
+    id_pojazdu INT AUTO_INCREMENT PRIMARY KEY,
+    id_klienta INT,
+    id_zlecenia INT,
+    marka_pojazdu VARCHAR(80)
+);
+
+
+
+
+
+INSERT INTO Klienci (imie, nazwisko, nr_telefonu)
+VALUES
+('Jan', 'Kowalski', 123456789),
+('Anna', 'Nowak', 987654321),
+('Piotr', 'Wiśniewski', 234567890),
+('Katarzyna', 'Lewandowska', 876543210),
+('Marek', 'Wójcik', 112233445),
+('Joanna', 'Zielińska', 223344556),
+('Tomasz', 'Kaczmarek', 334455667);
+
+INSERT INTO Czesci_zamienne (nazwa_czesci_zamiennej, marka_pojazdu, ilosc_sztuk, cena_netto, cena_brutto)
+VALUES
+('Płyn hamulcowy FEBI BILSTEIN', 'AUDI', 2, 19.35, 23.8),
+('Zestaw uszczelek, chłodnica olejowa ELRING 634.970', 'BMW', 8, 19.94, 24.53),
+('Ochrona chłodnicy przed zamarzaniem', 'ALL', 3, 29.56, 36.36),
+('Śruba, tarcza hamulcowa', 'AUDI', 13, 6.15, 7.56),
+('Tarcza hamulcowa MASTER-SPORT MS-24011201781SE-SET', 'AUDI', 20, 193.9, 238.5),
+('Odpowietrznik zacisku hamulcowego', 'AUDI', 34, 1.71, 2.1),
+('Przekaźnik wielofunkcyjny (12V, 25A) 46-71-0004/VEM', 'DACIA', 2, 120.57, 148.3),
+('Opornik, wentylator wewnętrzny VAL509898', 'DACIA', 1, 128.64, 158.23),
+('Osuszacz, klimatyzacja NRF 33187', 'TOYOTA', 3, 28.79, 35.41),
+('Zawór rozprężny, klimatyzacja NRF 38772', 'TOYOTA', 3, 76.64, 94.27),
+('Tarcza Hamulcowa BREMBO 09.5843.31', 'OPEL', 8, 124.54, 153.18),
+('Zestaw klocków hamulcowych, hamulce tarczowe, klicki BREMBO P59051', 'OPEL', 12, 91.85, 112.98);
+
+INSERT INTO zlecenia (opis, status_naprawy, id_klienta)
+VALUES
+('Naprawa układu hamulcowego', 'W trakcie naprawy', 1),
+('Wymiana oleju i filtrów', 'Zakończona', 2),
+('Naprawa klimatyzacji', 'W trakcie naprawy', 3),
+('Wymiana klocków hamulcowych', 'Oczekuje na części', 4),
+('Naprawa zawieszenia', 'Zakończona', 5),
+('Wymiana rozrządu', 'Zakończona', 6),
+('Naprawa układu wydechowego', 'W trakcie naprawy', 7);
+
+INSERT INTO mechanicy (imie, nazwisko)
+VALUES
+('Adam', 'Nowak'),
+('Michał', 'Kowalski'),
+('Kamil', 'Zieliński'),
+('Jan', 'Wiśniewski'),
+('Paweł', 'Lewandowski'),
+('Jakub', 'Kaczmarek'),
+('Tomasz', 'Wójcik');
+
+
+INSERT INTO zlecenia_mechanicy (zlecenie_id, mechanik_id)
+VALUES
+(1, 1),
+(1, 2),
+(2, 3),
+(3, 4),
+(4, 5),
+(5, 6),
+(6, 7);
+
+INSERT INTO uslugi (nazwa_uslugi, cena)
+VALUES
+('Wymiana oleju', 150.00),
+('Wymiana filtrów', 100.00),
+('Naprawa zawieszenia', 300.00),
+('Wymiana klocków hamulcowych', 200.00),
+('Naprawa układu hamulcowego', 250.00),
+('Naprawa klimatyzacji', 180.00),
+('Naprawa układu wydechowego', 220.00);
+
+
+INSERT INTO wyceny (zlecenie_id, czesc_id, usluga_id, cena_czesci, cena_uslugi)
+VALUES
+(1, 1, NULL, 23.80, 250.00),
+(1, 2, NULL, 24.53, 250.00),
+(2, 3, 1, 36.36, 150.00),
+(3, 5, 2, 238.50, 180.00),
+(4, 4, 3, 7.56, 200.00),
+(5, 6, 4, 238.50, 300.00),
+(6, 8, 5, 148.30, 220.00);
+
+INSERT INTO pojazdy (id_klienta, id_zlecenia, marka_pojazdu)
+VALUES
+(1, 1, 'AUDI'),
+(2, 2, 'BMW'),
+(3, 3, 'TOYOTA'),
+(4, 4, 'OPEL'),
+(5, 5, 'AUDI'),
+(6, 6, 'DACIA'),
+(7, 7, 'TOYOTA');
